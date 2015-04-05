@@ -1,2 +1,6 @@
 .DS_History
 notes.md
+*.pyc
+literature_review
+*.pkl
+.DS_Store

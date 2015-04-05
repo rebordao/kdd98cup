@@ -1,0 +1,7 @@
+data_file: 'cup98LRN.csv'
+feat_selection:
+    method: 'dt'
+    hardcoded_feats:
+        - "ola"
+        - "ola1"
+        - "ola2"
