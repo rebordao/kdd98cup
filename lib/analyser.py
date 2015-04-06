@@ -112,4 +112,6 @@ class Analyser:
                           "RECINHSE", "RFA_2A", "RFA_2F", "STATE",
                           "TIMELAG", "TARGET_B"]
 
+        import_vars = []
+
         return important_vars
