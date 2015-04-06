@@ -94,7 +94,8 @@ class Analyser:
         # TODO: get optimal x value automatically
         tmp = abs(TARGET_B_corr).copy()
         tmp.sort(ascending = False)
-        important_vars = [tmp.index[0]].extend(tmp.index[2:52]) # removes TARGET_D
+        important_vars = [tmp.index[0]]
+        important_vars.extend(list(tmp.index[2:52])) # removes TARGET_D
 
         #important_vars = ["AGE", "AVGGIFT", "CARDGIFT", "CARDPM12",
         #                  "CARDPROM", "CLUSTER2", "DOMAIN", "GENDER",
@@ -111,8 +112,8 @@ class Analyser:
 
         #### Univariate Feature Selection ####
 
-        X = X.drop("TARGET_B", axis = 1)
         y = X.TARGET_B
+        X = X.drop("TARGET_B", axis = 1)
 
         #X_new = SelectKBest(chi2, k = 10).fit_transform(X.values, y.values)
 

@@ -2,8 +2,9 @@
 # -*- coding: utf-8 -*-
 
 '''
-This script computes how likely
-somebody will contributes for charity.
+This script estimates if a direct mailing
+campaign's recipient will reply or not. The
+context and data are from the KDD Cup 98 Competition.
 '''
 
 import numpy as np
@@ -16,7 +17,6 @@ from sklearn.linear_model import LogisticRegression
 
 # Reads project's classes
 from lib.importer import Importer
-from lib.preprocessor import DataFrameImputer
 from lib.preprocessor import Preprocessor
 from lib.analyser import Analyser
 from lib.utils import Performance
@@ -110,10 +110,10 @@ if __name__ == '__main__':
     # Does train/test datasets, 70% and 30% respectively
     cut = int(feats.shape[0] * .7)
 
-    train = feats[1:cut].drop(['TARGET_B', 'TARGET_D'], axis = 1)
+    train = feats[1:cut].drop(['TARGET_B'], axis = 1)
     y_train = feats.TARGET_B[1:cut]
 
-    test = feats[(cut + 1):-1].drop(['TARGET_B', 'TARGET_D'], axis = 1)
+    test = feats[(cut + 1):-1].drop(['TARGET_B'], axis = 1)
     y_test = feats.TARGET_B[(cut + 1):-1]
 
     # Creates a balanced trainset
@@ -140,7 +140,7 @@ if __name__ == '__main__':
     print "Model 1 executing..."
 
     # Training
-    clf = DecisionTreeClassifier(max_depth = 10) # TODO: should let the tree fully grow
+    clf = DecisionTreeClassifier(max_depth = 20) # TODO: should let the tree fully grow
     # and then prune it automatically according to an optimal depth
     clf = clf.fit(train_bal.values, y_train_bal)
 
@@ -161,7 +161,7 @@ if __name__ == '__main__':
 
     # Training
     clf = ExtraTreesClassifier(n_estimators = 500, verbose = 1,
-        bootstrap = True, max_depth = 10, oob_score = True, n_jobs = -1)
+        bootstrap = True, max_depth = 20, oob_score = True, n_jobs = -1)
 
     #clf = RandomForestClassifier(
     #    n_estimators = 500, max_depth = 10, verbose = 1, n_jobs = -1)
