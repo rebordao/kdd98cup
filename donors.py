@@ -101,11 +101,11 @@ if __name__ == '__main__':
     # Gets important variables
     important_vars = Analyser.get_important_vars(cfg, dat)
 
-    # Drops the non-important variables
-    feats = dat[important_vars]
-
     # Changes categorical vars to a numerical form
     feats = pd.get_dummies(dat)
+
+    # Drops the non-important variables
+    feats = feats[important_vars]
 
     # Does train/test datasets, 70% and 30% respectively
     cut = int(feats.shape[0] * .7)

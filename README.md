@@ -1,6 +1,13 @@
-# Fund Raising Prediction Model
+# KDD Cup 98 Competition
 
 ## Task
+
+For a direct mailing campaign build statistical models that:
+
+- From its recipients identify the ones that will reply to the campaign.
+- Maximise the campaign’s revenue.
+
+## Dataset
 
 “This dataset was used in the 1998 kdd cup data mining competition. It was
 collected by PVA, a non-profit organisation which provides programs and 
@@ -42,13 +49,11 @@ This dataset is quite noisy, many attributes have a lot of missing values,
 and there are records with formatting errors. An important issue is feature 
 selection. There are far too many features, and it will be necessary to 
 select the most relevant ones, or to construct our own features.
-The training set has around 96,000 examples, but contains only 5% positive
-examples. Finally, building a useful model for this dataset is made more
-difficult by the fact that there is an inverse relationship between the
+The training set contains only 5% positive examples. Finally,
+building a useful model for this dataset is made more difficult
+by the fact that there is an inverse relationship between the
 probability to donate and the amount donated.
 
-
-## Strategy
 
 ## References
 
@@ -60,6 +65,12 @@ The authors use this dataset as an example of a situation where
 misclassification costs depend on the individual. Their approach is
 more advanced and better described then the ones of the kdd cup winners.”
 Extracted from [here](http://stanford.edu/~cpiech/cs221/homework/finalProject.html).
+
+## Strategy
+
+My solutions to these tasks are in scripts `donors.py` and `profits.py`
+respectively. I suggest starting with the first script if you want to
+know more about this.
 
 ## Author
 

@@ -5,8 +5,8 @@ Contains all methods to do analysis in this project.
 import numpy as np
 import pandas as pd
 import operator
-from sklearn import feature_selection
-from sklearn import ensemble
+from sklearn.feature_selection import chi2, SelectKBest, VarianceThreshold
+from sklearn.ensemble import ExtraTreesClassifier
 
 from preprocessor import DataFrameImputer
 from preprocessor import Preprocessor
@@ -69,6 +69,7 @@ class Analyser:
         '''
 
         # Balances the dataset
+
         idxs_pos = dat.TARGET_B == 1
         pos = dat[idxs_pos]
         neg = dat[dat.TARGET_B == 0][1:sum(idxs_pos)]
@@ -79,39 +80,49 @@ class Analyser:
         # Imputes the data and fills in the missing values
         sub_dat = Preprocessor.fill_nans(sub_dat)
 
-        X = sub_dat.drop("TARGET_B", axis = 1)
-        y = sub_dat.TARGET_B
-
         # Changes categorical vars to a numerical form
-        X = pd.get_dummies(X)
+        X = pd.get_dummies(sub_dat)
 
-        # Unfortunately all these methods remove column names...
+        #### Correlation-based Feature Selection ####
 
-        # Variance-based Feature Selection
-        #sel = feature_selection.VarianceThreshold(threshold = 0.005)
-        #X = sel.fit_transform(X)
+        # Computes correlation between TARGET_B and the predictors
+        TARGET_B_corr = X.corr()["TARGET_B"].copy()
+        TARGET_B_corr.sort(ascending = False)
+        TARGET_B_corr
 
-        # Univariate Feature Selection
-        #X_new = feature_selection.SelectKBest(
-        #    feature_selection.chi2, k = 10).fit_transform(X.values, y.values)
+        # Sorts and picks the first x features
+        # TODO: get optimal x value automatically
+        tmp = abs(TARGET_B_corr).copy()
+        tmp.sort(ascending = False)
+        important_vars = [tmp.index[0]].extend(tmp.index[2:52]) # removes TARGET_D
 
-        # Tree-based Feature Selection
-        clf = ensemble.ExtraTreesClassifier()
-        X_new = clf.fit(X.values, y.values).transform(X.values)
+        #important_vars = ["AGE", "AVGGIFT", "CARDGIFT", "CARDPM12",
+        #                  "CARDPROM", "CLUSTER2", "DOMAIN", "GENDER",
+        #                  "GEOCODE2", "HIT", "HOMEOWNR", "HPHONE_D",
+        #                  "INCOME", "LASTGIFT", "MAXRAMNT", "MDMAUD_F",
+        #                  "MDMAUD_R", "MINRAMNT", "NGIFTALL", "NUMPRM12",
+        #                  "PCOWNERS", "PEPSTRFL", "PETS", "RAMNTALL",
+        #                  "RECINHSE", "RFA_2A", "RFA_2F", "STATE",
 
-        aux = dict(zip(X.columns, clf.feature_importances_))
-        important_vars = [i[0] for i in sorted(
-            aux.items(), key = operator.itemgetter(0))]
+        #### Variance-based Feature Selection ####
 
-        important_vars = ["AGE", "AVGGIFT", "CARDGIFT", "CARDPM12",
-                          "CARDPROM", "CLUSTER2", "DOMAIN", "GENDER",
-                          "GEOCODE2", "HIT", "HOMEOWNR", "HPHONE_D",
-                          "INCOME", "LASTGIFT", "MAXRAMNT", "MDMAUD_F",
-                          "MDMAUD_R", "MINRAMNT", "NGIFTALL", "NUMPRM12",
-                          "PCOWNERS", "PEPSTRFL", "PETS", "RAMNTALL",
-                          "RECINHSE", "RFA_2A", "RFA_2F", "STATE",
-                          "TIMELAG", "TARGET_B"]
+        #sel = VarianceThreshold(threshold = 0.005)
+        #X_new = sel.fit_transform(X)
 
-        import_vars = []
+        #### Univariate Feature Selection ####
+
+        X = X.drop("TARGET_B", axis = 1)
+        y = X.TARGET_B
+
+        #X_new = SelectKBest(chi2, k = 10).fit_transform(X.values, y.values)
+
+        #### Tree-based Feature Selection ####
+
+        #clf = ExtraTreesClassifier()
+        #X_new = clf.fit(X.values, y.values).transform(X.values)
+
+        #aux = dict(zip(X.columns, clf.feature_importances_))
+        #important_vars = [i[0] for i in sorted(
+        #    aux.items(), key = operator.itemgetter(0))]
 
         return important_vars

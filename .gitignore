@@ -4,3 +4,4 @@ notes.md
 literature_review
 *.pkl
 .DS_Store
+*.csv
