@@ -6,12 +6,13 @@ For a [direct mailing campaign organised by a non-profit organisation](
 http://kdd.ics.uci.edu/databases/kddcup98/epsilon_mirror/cup98doc.txt),
 build statistical models that:
 
-1. Identify the recipients that will reply to the campaign.
+1. Identify the recipients that will engage with the campaign.
 2. Maximise the campaign’s revenue.
 
 My solutions to these tasks are in scripts `donors.py` and `profits.py`,
-respectively. My technical report is at `reports.md`. All code and the report
-are available at a [github repository](https://github.com/rebordao/kdd98cup).
+respectively. The technical report is at `report.html`. All the code and the
+report are available in a [github repository](
+https://github.com/rebordao/kdd98cup).
 
 ## Dataset
 
@@ -46,7 +47,31 @@ It’s structured around the following steps:
 8. Model Evaluation and Comparison
 
 I used only the training cases that were provided and made my train and test
-sets out of that file. Thus my train and test sets have 95412 cases.
+sets out of that file. Thus my train and test sets together have 95412 cases.
+
+## System Architecture
+
+```
+.
+├── README.md
+├── config.yml
+├── data
+│   ├── cup98LRN.csv
+│   └── cup98lrn.zip
+├── donors.py
+├── lib
+│   ├── __init__.py
+│   ├── analyser.py
+│   ├── importer.py
+│   ├── preprocessor.py
+│   ├── utils.py
+├── profits.py
+├── report.html
+└── report.md
+```
+
+The main files are `donors.py` and `profits.py`. The project’s configuration
+is at `config.yml` and all the auxiliary classes and their methods are in `lib`.
 
 ## Author
 
