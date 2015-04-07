@@ -3,14 +3,15 @@
 
 '''
 This script estimates if a direct mailing
-campaign's recipient will reply or not. The
-context and data are from the KDD Cup 98 Competition.
+campaign's recipient will donate or not. The
+context and data are from the KDD Cup 98 Challenge.
 '''
 
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
+from pydoc import help
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 from sklearn.linear_model import LogisticRegression
@@ -125,12 +126,9 @@ if __name__ == '__main__':
     y_train_bal.extend([0] * neg.shape[0])
     train_bal = pos.append(neg, ignore_index = True)
 
-    # Build Validation Set
-    # TODO
-
     #### Model Selection ####
 
-    # Do Grid Search for Optimal parameters, use validation set for that
+    # Do cross-validation Grid Search to find the optimal parameters
     # TODO
 
     #### Training ####
@@ -179,7 +177,7 @@ if __name__ == '__main__':
     # Gets performance
     perf_model2 = Performance.get_perf(y_test, y_test_pred)
 
-    #### Model 3 | Linear Regression Model ####
+    #### Model 3 | Logistic Regression Model ####
 
     print "Model 3 executing..."
 
@@ -211,7 +209,8 @@ if __name__ == '__main__':
     print pd.crosstab(
         y_test, y_test_pred, rownames = ['actual'], colnames = ['preds'])
 
-    # Model comparison
+    #### Model comparison ####
+
     all_models = {'Decision Trees Model': perf_model1,
                   'Random Forest Model': perf_model2,
                   'Logistic Regression Model': perf_model3,

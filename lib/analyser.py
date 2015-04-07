@@ -5,6 +5,7 @@ Contains all methods to do analysis in this project.
 import numpy as np
 import pandas as pd
 import operator
+
 from sklearn.feature_selection import chi2, SelectKBest, VarianceThreshold
 from sklearn.ensemble import ExtraTreesClassifier
 
@@ -69,10 +70,9 @@ class Analyser:
         '''
 
         # Balances the dataset
-
-        idxs_pos = dat.TARGET_B == 1
+        idxs_pos = dat[cfg['target']] == 1
         pos = dat[idxs_pos]
-        neg = dat[dat.TARGET_B == 0][1:sum(idxs_pos)]
+        neg = dat[dat[cfg['target']] == 0][1:sum(idxs_pos)]
 
         # Concatenates pos and neg, it's already shuffled
         sub_dat = pos.append(neg, ignore_index = True)
@@ -85,25 +85,16 @@ class Analyser:
 
         #### Correlation-based Feature Selection ####
 
-        # Computes correlation between TARGET_B and the predictors
-        TARGET_B_corr = X.corr()["TARGET_B"].copy()
-        TARGET_B_corr.sort(ascending = False)
-        TARGET_B_corr
+        # Computes correlation between cfg['target'] and the predictors
+        target_corr = X.corr()[cfg['target']].copy()
+        target_corr.sort(ascending = False)
 
         # Sorts and picks the first x features
         # TODO: get optimal x value automatically
-        tmp = abs(TARGET_B_corr).copy()
+        tmp = abs(target_corr).copy()
         tmp.sort(ascending = False)
         important_vars = [tmp.index[0]]
-        important_vars.extend(list(tmp.index[2:52])) # removes TARGET_D
-
-        #important_vars = ["AGE", "AVGGIFT", "CARDGIFT", "CARDPM12",
-        #                  "CARDPROM", "CLUSTER2", "DOMAIN", "GENDER",
-        #                  "GEOCODE2", "HIT", "HOMEOWNR", "HPHONE_D",
-        #                  "INCOME", "LASTGIFT", "MAXRAMNT", "MDMAUD_F",
-        #                  "MDMAUD_R", "MINRAMNT", "NGIFTALL", "NUMPRM12",
-        #                  "PCOWNERS", "PEPSTRFL", "PETS", "RAMNTALL",
-        #                  "RECINHSE", "RFA_2A", "RFA_2F", "STATE",
+        important_vars.extend(list(tmp.index[2:52])) # removes other target
 
         #### Variance-based Feature Selection ####
 
@@ -112,8 +103,8 @@ class Analyser:
 
         #### Univariate Feature Selection ####
 
-        y = X.TARGET_B
-        X = X.drop("TARGET_B", axis = 1)
+        #y = X.TARGET_B
+        #X = X.drop("TARGET_B", axis = 1)
 
         #X_new = SelectKBest(chi2, k = 10).fit_transform(X.values, y.values)
 
