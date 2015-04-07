@@ -37,6 +37,10 @@ the Feature Selection; the Model Selection; and the results.
 The file `donors.py` and `README.md` are good starting points to understand
 my solution and its steps.
 
+Please focus in my solution to task 1 (`donors.py`) because in problem 2
+I was into quick and dirty mode. However, in this report I indicate what
+can be improved.
+
 ## Dataset
 
 This dataset was used in the [KDD Cup 98 Challenge](
@@ -56,9 +60,9 @@ sending each mail is $0.68.
 - 481 attributes
 - 236.2 MB: 117.2 MB training data and 119 MB test data
 
-## My Solution
+## My Solutions
 
-It’s structured around the following steps:
+They are structured around the following steps:
 
 1. Data Importation
 2. Exploratory Analysis
@@ -69,7 +73,13 @@ It’s structured around the following steps:
 7. Testing
 8. Model Evaluation and Comparison
 
-I used only the training cases that were provided and made my train and test
+In my solution to task 1 I follow this procedure.
+
+In my solution to task 2 first I predict who is a donor, and then - using just
+those samples - I train a classifier that predicts how much the person donated.
+Then I mail all the ones where the prediction is higher than $0.68.
+
+I used only the training cases that were provided and made my training and test
 sets out of that file. Thus my train and test sets together have 95412 cases.
 
 ## System Architecture
@@ -156,11 +166,12 @@ the amount donated.
 variable is a numeric type or with the most common term if the variable is
 an object type. Made a method for this at `Preprocessor.fill_nans()`.
 - Shuffled the data.
+- Changed categorical variables into a numerical representation.
 
 #### Comments
 
-- Found several redundant variables but it wasn’t enough for significant
-dimensionality reduction.
+- Found several redundant variables but dropping them wasn’t enough for
+significant dimensionality reduction.
 - With all the missing values this step is quite sensitive. I hope the data
 imputation doesn’t add too much noise to the variables.
 - Could had tried to apply Principal Component Analysis for dimensionality
@@ -207,33 +218,42 @@ optimal parameters, but I haven’t had time to do it.
 
 #### What I did
 
+##### Task 1
+
 - Deployed 4 methods:
     - Method 1 | Decision Tree Model.
     - Method 2 | Random Forest Model (also used Extremely Randomized Trees).
     - Method 3 | Logistic Regression Model.
     - Method 4 | Ensemble Model of the previous 3 methods.
 
+##### Task 2
+
+- First I predict who is a donor, and then - using just those samples -
+I train a classifier that predicts how much the person donated. Then I mail
+all the ones where the prediction is higher than $0.68.
+- For predicting the donors I used Logistic Regression and for predicting the
+donations I used Linear Regression.
+
 #### Comments
+
+##### Task 1
 
 - Would be nice to try as well a Naive Bayes Model and a Neural Network Model.
 - Choose Method 3 as a baseline and
 - tune in the parameters of the training methods of methods 1 and 2.
 - Cherry pick the best 3 and build an optimal ensemble method.
 
-### Testing, Model Evaluation and Comparison
+##### Task 2
 
-#### What I did
+- Should had used in both classifiers cross validation.
+- Need to reevaluate my implementation and to make the training faster.
+
+### Testing, Model Evaluation and Results
+
+##### Task 1
 
 - For each method computed the confusion matrix, accuracy, recall, precision
 and F1. Made a method for this at `Performance.get_perf()`.
-- I didn't need statistical tests for model comparison. The metrics that I have
-were enough.
-
-#### Comments
-
-- Would had been nice to display for each method its lift, AUC and ROC curves.
-
-### Results
 
 ```
                Model Name Performance Metric      Value
@@ -257,14 +277,24 @@ Logistic Regression Model           accuracy  61.640332
 
 - All the methods don’t perform significantly well.
 - The best one is Logistic Regression.
+- It would had been nice to display for each method its lift, AUC and ROC curves.
 - With better Feature and Model Selection the results can be improved.
+
+##### Task 2
+
+- Uses Pearson’s correlation to evaluate tje performance of my solution.
+- The correlation varies between 0.4 and 0.73 because I am evaluating it in
+a reduced set and didn’t compute a statistical mean of it.
+- I think the results can by improved by reevaluating my implementation
+and the feature selection.
 
 ## References
 
 The article [Learning and Making Decisions When Costs and Probabilities
 are Both Unknown](http://cseweb.ucsd.edu/~elkan/kddbianca.pdf) (2001) by
 B. Zadrozny and C. Elkan is an interesting reading that provides good insight
-into task 2, i.e. maximising the profit of the campaign.
+into task 2, i.e. maximising the profit of the campaign. However I didn’t have
+time to replicate their approach.
 
 ## Author
 

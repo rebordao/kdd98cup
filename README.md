@@ -33,9 +33,9 @@ sending each mail is $0.68.
 - 481 attributes
 - 236.2 MB: 117.2 MB training data and 119 MB test data
 
-## My Solution
+## My Solutions
 
-It’s structured around the following steps:
+They are structured around the following steps:
 
 1. Data Importation
 2. Exploratory Analysis
@@ -46,7 +46,13 @@ It’s structured around the following steps:
 7. Testing
 8. Model Evaluation and Comparison
 
-I used only the training cases that were provided and made my train and test
+In my solution to task 1 I follow this procedure.
+
+In my solution to task 2 first I predict who is a donor, and then - using just
+those samples - I train a classifier that predicts how much the person donated.
+Then I mail all the ones where the prediction is higher than $0.68.
+
+I used only the training cases that were provided and made my training and test
 sets out of that file. Thus my train and test sets together have 95412 cases.
 
 ## System Architecture

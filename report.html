@@ -84,6 +84,7 @@ img {
 <li>Do a business action plan supported by the results of this analysis.</li>
 </ul>
 <p>The file <code>donors.py</code> and <code>README.md</code> are good starting points to understand my solution and its steps.</p>
+<p>Please focus in my solution to task 1 (<code>donors.py</code>) because in problem 2 I was into quick and dirty mode. However, in this report I indicate what can be improved.</p>
 </div>
 <div id="dataset" class="section level2">
 <h2>Dataset</h2>
@@ -99,9 +100,9 @@ img {
 </ul>
 </div>
 </div>
-<div id="my-solution" class="section level2">
-<h2>My Solution</h2>
-<p>It’s structured around the following steps:</p>
+<div id="my-solutions" class="section level2">
+<h2>My Solutions</h2>
+<p>They are structured around the following steps:</p>
 <ol style="list-style-type: decimal">
 <li>Data Importation</li>
 <li>Exploratory Analysis</li>
@@ -112,7 +113,9 @@ img {
 <li>Testing</li>
 <li>Model Evaluation and Comparison</li>
 </ol>
-<p>I used only the training cases that were provided and made my train and test sets out of that file. Thus my train and test sets together have 95412 cases.</p>
+<p>In my solution to task 1 I follow this procedure.</p>
+<p>In my solution to task 2 first I predict who is a donor, and then - using just those samples - I train a classifier that predicts how much the person donated. Then I mail all the ones where the prediction is higher than $0.68.</p>
+<p>I used only the training cases that were provided and made my training and test sets out of that file. Thus my train and test sets together have 95412 cases.</p>
 </div>
 <div id="system-architecture" class="section level2">
 <h2>System Architecture</h2>
@@ -196,12 +199,13 @@ img {
 <li>Performed dimensionality reduction by dropping those vars/columns.</li>
 <li>Imputed the data by filling in the missing values with the mean if the variable is a numeric type or with the most common term if the variable is an object type. Made a method for this at <code>Preprocessor.fill_nans()</code>.</li>
 <li>Shuffled the data.</li>
+<li>Changed categorical variables into a numerical representation.</li>
 </ul>
 </div>
 <div id="comments-2" class="section level4">
 <h4>Comments</h4>
 <ul>
-<li>Found several redundant variables but it wasn’t enough for significant dimensionality reduction.</li>
+<li>Found several redundant variables but dropping them wasn’t enough for significant dimensionality reduction.</li>
 <li>With all the missing values this step is quite sensitive. I hope the data imputation doesn’t add too much noise to the variables.</li>
 <li>Could had tried to apply Principal Component Analysis for dimensionality reduction but I didn’t have enough time for that.</li>
 </ul>
@@ -254,6 +258,8 @@ img {
 <h3>Training</h3>
 <div id="what-i-did-5" class="section level4">
 <h4>What I did</h4>
+<div id="task-1" class="section level5">
+<h5>Task 1</h5>
 <ul>
 <li>Deployed 4 methods:
 <ul>
@@ -264,8 +270,18 @@ img {
 </ul></li>
 </ul>
 </div>
+<div id="task-2" class="section level5">
+<h5>Task 2</h5>
+<ul>
+<li>First I predict who is a donor, and then - using just those samples - I train a classifier that predicts how much the person donated. Then I mail all the ones where the prediction is higher than $0.68.</li>
+<li>For predicting the donors I used Logistic Regression and for predicting the donations I used Linear Regression.</li>
+</ul>
+</div>
+</div>
 <div id="comments-5" class="section level4">
 <h4>Comments</h4>
+<div id="task-1-1" class="section level5">
+<h5>Task 1</h5>
 <ul>
 <li>Would be nice to try as well a Naive Bayes Model and a Neural Network Model.</li>
 <li>Choose Method 3 as a baseline and</li>
@@ -273,25 +289,22 @@ img {
 <li>Cherry pick the best 3 and build an optimal ensemble method.</li>
 </ul>
 </div>
+<div id="task-2-1" class="section level5">
+<h5>Task 2</h5>
+<ul>
+<li>Should had used in both classifiers cross validation.</li>
+<li>Need to reevaluate my implementation and to make the training faster.</li>
+</ul>
 </div>
-<div id="testing-model-evaluation-and-comparison" class="section level3">
-<h3>Testing, Model Evaluation and Comparison</h3>
-<div id="what-i-did-6" class="section level4">
-<h4>What I did</h4>
+</div>
+</div>
+<div id="testing-model-evaluation-and-results" class="section level3">
+<h3>Testing, Model Evaluation and Results</h3>
+<div id="task-1-2" class="section level5">
+<h5>Task 1</h5>
 <ul>
 <li>For each method computed the confusion matrix, accuracy, recall, precision and F1. Made a method for this at <code>Performance.get_perf()</code>.</li>
-<li>I didn’t need statistical tests for model comparison. The metrics that I have were enough.</li>
 </ul>
-</div>
-<div id="comments-6" class="section level4">
-<h4>Comments</h4>
-<ul>
-<li>Would had been nice to display for each method its lift, AUC and ROC curves.</li>
-</ul>
-</div>
-</div>
-<div id="results" class="section level3">
-<h3>Results</h3>
 <pre><code>               Model Name Performance Metric      Value
            Ensemble Model             recall  56.449376
            Ensemble Model                 F1  12.371761
@@ -312,13 +325,23 @@ Logistic Regression Model           accuracy  61.640332</code></pre>
 <ul>
 <li>All the methods don’t perform significantly well.</li>
 <li>The best one is Logistic Regression.</li>
+<li>It would had been nice to display for each method its lift, AUC and ROC curves.</li>
 <li>With better Feature and Model Selection the results can be improved.</li>
 </ul>
+</div>
+<div id="task-2-2" class="section level5">
+<h5>Task 2</h5>
+<ul>
+<li>Uses Pearson’s correlation to evaluate tje performance of my solution.</li>
+<li>The correlation varies between 0.4 and 0.73 because I am evaluating it in a reduced set and didn’t compute a statistical mean of it.</li>
+<li>I think the results can by improved by reevaluating my implementation and the feature selection.</li>
+</ul>
+</div>
 </div>
 </div>
 <div id="references" class="section level2">
 <h2>References</h2>
-<p>The article <a href="http://cseweb.ucsd.edu/~elkan/kddbianca.pdf">Learning and Making Decisions When Costs and Probabilities are Both Unknown</a> (2001) by B. Zadrozny and C. Elkan is an interesting reading that provides good insight into task 2, i.e. maximising the profit of the campaign.</p>
+<p>The article <a href="http://cseweb.ucsd.edu/~elkan/kddbianca.pdf">Learning and Making Decisions When Costs and Probabilities are Both Unknown</a> (2001) by B. Zadrozny and C. Elkan is an interesting reading that provides good insight into task 2, i.e. maximising the profit of the campaign. However I didn’t have time to replicate their approach.</p>
 </div>
 <div id="author" class="section level2">
 <h2>Author</h2>
