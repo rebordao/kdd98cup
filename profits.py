@@ -5,13 +5,12 @@
 This script maximises a campaign's revenue.
 The context and data are from the KDD Cup 98 Competition.
 '''
-
 import numpy as np
 import pandas as pd
 
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.linear_model import LogisticRegression
+from pydoc import help
+from scipy.stats.stats import pearsonr
+from sklearn.linear_model import LinearRegression, LogisticRegression
 
 # Reads project's classes
 from lib.importer import Importer
@@ -25,13 +24,23 @@ if __name__ == '__main__':
 
     # Loads configuration
     cfg = Importer.get_cfg()
+    cfg['target'] = 'TARGET_D'
 
     # Loads raw data
     raw_dat = Importer.get_raw_dat(cfg)
 
+    # Creates a reduced version of raw_dat
+    # Otherwise I can't test my buggy solution
+    # TODO: optimise such that this workaround is not necessary
+    pos = raw_dat[raw_dat.TARGET_B == 1]
+    neg = raw_dat[raw_dat.TARGET_B == 0][1:pos.shape[0]]
+    y_train_bal = [1] * pos.shape[0]
+    y_train_bal.extend([0] * neg.shape[0])
+    raw_dat = pos.append(neg, ignore_index = True)
+
     #### Exploratory Analysis ####
 
-    # !!! it's already done at donors.py !!! #
+    # !!! It's already done at donors.py !!! #
 
     # Correlation between TARGET_D and the predictors
     TARGET_D_corr = raw_dat.corr()["TARGET_D"].copy()
@@ -52,24 +61,26 @@ if __name__ == '__main__':
     dat = raw_dat.drop(redundant_vars, axis = 1)
 
     # Imputes the data and fills in the missing values
-    dat = Preprocessor.fill_nans(dat)
+    dat = Preprocessor.fill_nans(raw_dat)
 
     # Shuffles observations
-    dat.apply(np.random.permutation)
+    dat = dat.apply(np.random.permutation)
 
     #### Feature Selection ####
 
     # Gets important variables
     important_vars = Analyser.get_important_vars(cfg, dat)
+    important_vars.extend(['TARGET_B'])
 
     # Changes categorical vars to a numerical form
+    # TODO: find a faster alternative, or clever cleaning to the vars before
     feats = pd.get_dummies(dat)
 
     # Drops the non-important variables
     feats = feats[important_vars]
 
     # Does train/test datasets, 70% and 30% respectively
-    cut = int(feats.shape[0] * .7)
+    cut = int(feats.shape[0] * .5)
 
     train = feats[1:cut].drop(['TARGET_B', 'TARGET_D'], axis = 1)
     y_train = feats.TARGET_B[1:cut]
@@ -77,109 +88,51 @@ if __name__ == '__main__':
     test = feats[(cut + 1):-1].drop(['TARGET_B', 'TARGET_D'], axis = 1)
     y_test = feats.TARGET_B[(cut + 1):-1]
 
-    # Creates a balanced trainset
-    # In classification, some methods perform better with bal datasets,
-    # particularly tree-based methods like decision trees and random forests.
-    pos = train[y_train == 1]
-    neg = train[y_train == 0][1:pos.shape[0]]
-    y_train_bal = [1] * pos.shape[0]
-    y_train_bal.extend([0] * neg.shape[0])
-    train_bal = pos.append(neg, ignore_index = True)
-
-    # Build Validation Set
-    # TODO
-
     #### Model Selection ####
 
-    # Do Grid Search for Optimal parameters, use validation set for that
+    # Do cross-validation Grid Search to find the optimal parameters
     # TODO
 
-    #### Training ####
+    #### Get Estimated Donors ####
 
-    #### Model 1 | Decision Tree Model ####
-
-    print "Model 1 executing..."
+    # Linear Regression Model to predict who are the donors
 
     # Training
-    clf = DecisionTreeClassifier(max_depth = 10) # TODO: should let the tree fully grow
-    # and then prune it automatically according to an optimal depth
-    clf = clf.fit(train_bal.values, y_train_bal)
+    # TODO: do cross validation training
+    clf = LogisticRegression(verbose = 1, max_iter = 200)
+    clf = clf.fit(train.values, y_train.values)
 
     # Testing
     y_test_pred = clf.predict(test.values)
-    y_all_models = y_test_pred.copy()
 
     # Confusion Matrix
     print pd.crosstab(
         y_test, y_test_pred, rownames = ['actual'], colnames = ['preds'])
 
     # Gets performance
-    perf_model1 = Performance.get_perf(y_test.values, y_test_pred)
+    perf_model = Performance.get_perf(y_test, y_test_pred)
 
-    #### Model 2 | Random Forest Model ####
+    # Extracts donors from dat
 
-    print "Model 2 executing..."
+    sub_feats = feats[(cut + 1):-1].drop(['TARGET_B'], axis = 1)
+    sub_feats = sub_feats[y_test_pred == 1]
 
-    # Training
-    clf = ExtraTreesClassifier(n_estimators = 500, verbose = 1,
-        bootstrap = True, max_depth = 10, oob_score = True, n_jobs = -1)
+    # Divide sub_test into train and test
+    # TODO: do cross validation here
+    cut = int(sub_feats.shape[0] * .5)
+    train = sub_feats[1:cut]
+    test = sub_feats[(cut + 1):-1]
 
-    #clf = RandomForestClassifier(
-    #    n_estimators = 500, max_depth = 10, verbose = 1, n_jobs = -1)
-
-    clf = clf.fit(train_bal.values, y_train_bal)
-
-    # Testing
-    y_test_pred = clf.predict(test.values)
-    y_all_models += y_test_pred
-
-    # Confusion Matrix
-    print pd.crosstab(
-        y_test, y_test_pred, rownames = ['actual'], colnames = ['preds'])
-
-    # Gets performance
-    perf_model2 = Performance.get_perf(y_test, y_test_pred)
-
-    #### Model 3 | Linear Regression Model ####
-
-    print "Model 3 executing..."
+    #### For the estimated donors predict how much they will donate ####
+    # TODO: cross validation
 
     # Training
-    clf = LogisticRegression(max_iter = 200, verbose = 1)
-    clf = clf.fit(train_bal.values, y_train_bal)
+    clf = LinearRegression(n_jobs = -1)
+    clf = clf.fit(train.drop('TARGET_D', axis = 1).values,
+                  train.TARGET_D.values)
 
     # Testing
-    y_test_pred = clf.predict(test.values)
-    y_all_models += y_test_pred
+    y_test_pred = clf.predict(test.drop('TARGET_D', axis = 1).values)
 
-    # Confusion Matrix
-    print pd.crosstab(
-        y_test, y_test_pred, rownames = ['actual'], colnames = ['preds'])
-
-    # Gets performance
-    perf_model3 = Performance.get_perf(y_test, y_test_pred)
-
-    #### Model 4 | Ensemble Model (majority vote for model 1, 2 and 3) ####
-
-    print "Model 4 executing..."
-
-    # Gets performance for an ensemble of all 3 models
-    y_test_pred = np.array([0] * len(y_all_models))
-    y_test_pred[y_all_models > 1] = 1
-    perf_model_ensemble = Performance.get_perf(y_test, y_test_pred)
-
-    # Confusion Matrix
-    print pd.crosstab(
-        y_test, y_test_pred, rownames = ['actual'], colnames = ['preds'])
-
-    # Model comparison
-    all_models = {'Decision Trees Model': perf_model1,
-                  'Random Forest Model': perf_model2,
-                  'Logistic Regression Model': perf_model3,
-                  'Ensemble Model': perf_model_ensemble}
-
-    perf_all_models = pd.DataFrame([[col1, col2, col3 * 100] for col1, d in
-        all_models.items() for col2, col3 in d.items()], index = None,
-        columns = ['Model Name', 'Performance Metric', 'Value'])
-
-    print perf_all_models
+    # Evaluates result
+    print pearsonr(y_test_pred, test.TARGET_D.values)

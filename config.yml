@@ -5,3 +5,4 @@ feat_selection:
         - "ola"
         - "ola1"
         - "ola2"
+target: 'TARGET_B'
